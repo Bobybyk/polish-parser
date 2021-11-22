@@ -60,7 +60,7 @@ let read_file (file:string) : ((int * string) list) =
     with | End_of_file -> close_in_noerr (fic);
     List.rev(!ret);;
 
-let read_lines (file:string) =
+let read_file2 (file:string) =
   let ic = open_in file in
   let try_read () =
     try Some (input_line ic) with End_of_file -> None in
@@ -69,10 +69,21 @@ let read_lines (file:string) =
     | None -> close_in ic; List.rev acc in
   loop []
 
+let rec collect_term line = 
+  match line with
+    | [] -> Var("ligne vide")
+    | _::[] -> Var("ligne vide")
+    | e::e'::line' -> match e with
+      | "+" -> Op(Add, (collect_term(e'::line')), (collect_term(line')))
+      | "-" -> Op(Sub, (collect_term(e'::line')), (collect_term(line')))
+      | "*" -> Op(Mul, (collect_term(e'::line')), (collect_term(line')))
+      | "/" -> Op(Div, (collect_term(e'::line')), (collect_term(line')))
+      | "%" -> Op(Mod, (collect_term(e'::line')), (collect_term(line')))
+
 (***********************************************************************)
 
 (* tests *)
-let file_content = read_lines "exemples/abs.p";;
+let file_content = read_file2 "exemples/abs.p";;
 let file_content_with_line_nbr = read_file "exemples/abs.p";;
 let () = List.iter (printf "%s ") file_content;;
 (* let () = List.iter (printf "jpp je trouve pas les flags pour print") file_content_with_line_nbr;; *)
