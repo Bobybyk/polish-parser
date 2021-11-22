@@ -48,7 +48,16 @@ and block = (position * instr) list
 (** Un programme Polish est un bloc d'instructions *)
 type program = block
 
-let read_file (file:string) : (string list) =
+(*
+(* ébauche de fonction pour récupérer le contenu du fichier sous forme d'une liste de string 
+avec méthode fonctionnelle *)
+let rec get_content content fic =
+  match (* mon fichier sous forme de string (pas optimal avec match something with) *) with
+  | End_of_file -> content
+  | (* appel récursif à get_content *);;
+*)
+
+let read_file (file:string) =
   let fic = open_in file in
     let ret = ref [] in 
     try 
@@ -58,10 +67,19 @@ let read_file (file:string) : (string list) =
     with | End_of_file -> close_in_noerr (fic);
     List.rev(!ret);;
 
+let read_lines name : string list =
+  let ic = open_in name in
+  let try_read () =
+    try Some (input_line ic) with End_of_file -> None in
+  let rec loop acc = match try_read () with
+    | Some s -> loop (s :: acc)
+    | None -> close_in ic; List.rev acc in
+  loop []
+
 (***********************************************************************)
 
 (* tests *)
-let file_content = read_file "exemples/abs.p";;
+let file_content = read_lines "exemples/abs.p";;
 let () = List.iter (printf "%s ") file_content;;
 
 (***********************************************************************)
