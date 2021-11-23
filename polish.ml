@@ -69,10 +69,11 @@ let read_file2 (file:string) =
     | None -> close_in ic; List.rev acc in
   loop []
 
+
 let rec collect_term line = 
   match line with
-    | [] -> Var("ligne vide")
-    | _::[] -> Var("ligne vide")
+    | [] -> Var("empty line")
+    | _::[] -> Var("empty line")
     | e::e'::line' -> match e with
       | "+" -> Op(Add, (collect_term(e'::line')), (collect_term(line')))
       | "-" -> Op(Sub, (collect_term(e'::line')), (collect_term(line')))
