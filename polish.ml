@@ -70,7 +70,7 @@ let read_file2 (file:string) =
   loop []
 
 
-let rec collect_term line = 
+(* let rec collect_term line = 
   match line with
     | [] -> Var("empty line")
     | _::[] -> Var("empty line")
@@ -80,6 +80,7 @@ let rec collect_term line =
       | "*" -> Op(Mul, (collect_term(e'::line')), (collect_term(line')))
       | "/" -> Op(Div, (collect_term(e'::line')), (collect_term(line')))
       | "%" -> Op(Mod, (collect_term(e'::line')), (collect_term(line')))
+*)
 
 (***********************************************************************)
 
