@@ -45,9 +45,11 @@ type instr =
   | While of cond * block
 and block = (position * instr) list
 
-(** Un programme Polish est un bloc d'instructions *)
+(* Un programme Polish est un bloc d'instructions *)
 type program = block
 
+
+(* Ici on évalue la valeur de vérité de deux valeurs en fonction d'un opérateur logique *)
 let eval_comp condition =
   let compare val1 comp_type val2 =
     match comp_type with
@@ -60,19 +62,13 @@ let eval_comp condition =
     in match condition with (val1, comp_type, val2) -> compare val1 comp_type val2;;
 
 
-let read_file (file:string) : ((int * string) list) =
-  let fic = open_in file in
-    let ret = ref [(0,"")] in
-    let nbr_line = ref 0 in 
-    try 
-      while true do
-      nbr_line := (!nbr_line + 1);
-        ret := (!nbr_line, (input_line fic))::!ret
-      done; [] 
-    with | End_of_file -> close_in_noerr (fic);
-    List.rev(!ret);;
-
-let read_file2 (file:string) =
+(* Ici, via un chemin passé en argument, on récupère le contenu
+ d'un fichier de type Polish dans une chaine de charactère. On va ensuite
+ transférer le contenu de cette variable dans une liste de chaines de caractères 
+ avec, pour chaque élément de cette liste, un "mot" identifié préalablement par 
+ des caractères vides comme délimiteurs en début et fin
+*)
+let read_file (file:string) =
   let ic = open_in file in
   let try_read () =
     try Some (input_line ic) with End_of_file -> None in
@@ -81,30 +77,63 @@ let read_file2 (file:string) =
     | None -> close_in ic; List.rev acc in
   loop []
 
+(* Fonction appelée si l'instruction en préfix est de type READ.
+  On renvoie donc e la suite de la ligne à lire*)
+let collect_name line =
+  match line with 
+    | [] -> failwith("empty line")
+    | e::line' -> e;;
 
-(* let rec collect_term line = 
+(* Fonction pour évaluer si l'argument est un entier *)
+let is_int str =
+  let verif_num n =
+    try (int_of_string n |> string_of_int) = n
+    with Failure _ -> false in 
+  verif_num str;;
+
+(* Ici on parcourt la ligne pour identifier les opérateurs qu'on va ajouter
+  dans une structure Op avec ses valeurs *)
+let rec collect_expr line =
   match line with
-    | [] -> Var("empty line")
-    | _::[] -> Var("empty line")
-    | e::e'::line' -> match e with
-      | "+" -> Op(Add, (collect_term(e'::line')), (collect_term(line')))
-      | "-" -> Op(Sub, (collect_term(e'::line')), (collect_term(line')))
-      | "*" -> Op(Mul, (collect_term(e'::line')), (collect_term(line')))
-      | "/" -> Op(Div, (collect_term(e'::line')), (collect_term(line')))
-      | "%" -> Op(Mod, (collect_term(e'::line')), (collect_term(line')))
-*)
+    | [] -> failwith("empty line")
+    | e::e'::l -> (match e with
+      | "+" -> Op(Add, collect_expr (e'::l), collect_expr l)
+      | "-" -> Op(Sub, collect_expr (e'::l), collect_expr l)
+      | "*" -> Op(Mul, collect_expr (e'::l), collect_expr l)
+      | "/" -> Op(Div, collect_expr (e'::l), collect_expr l)
+      | "%" -> Op(Mod, collect_expr (e'::l), collect_expr l)
+      | _ -> if is_int e then Num(int_of_string e) else Var(e))
+    | e::l -> if is_int e then Num(int_of_string e) else Var(e) 
 
+(* Ici on va chercher à collecter le type d'instruction du début de la ligne 
+  passée en argument. Pour chaque type d'instruction identifiée, on crée la bonne
+  structure avec les opérateurs et expressions associées *)
+let collect_instr line =
+  let line_per_string = String.split_on_char ' ' line in
+  match line_per_string with
+    | [] -> failwith("empty line")
+    | e::l -> (match e with
+      | "READ" -> Read(collect_name l) 
+      | "IF" -> failwith("TODO")
+      | "WHILE" -> failwith("TODO")
+      | "PRINT" -> Print(collect_expr l)
+      | _ -> failwith("empty line"))
 (***********************************************************************)
 
 (* tests *)
-let file_content = read_file2 "exemples/abs.p";;
-let file_content_with_line_nbr = read_file "exemples/abs.p";;
+let file_content = read_file "exemples/abs.p";;
 let () = List.iter (printf "%s ") file_content;;
-(* let () = List.iter (printf "jpp je trouve pas les flags pour print") file_content_with_line_nbr;; *)
 
 (***********************************************************************)
 
-let read_polish (filename:string) : program = failwith "TODO"
+let read_polish (filename:string) : program = 
+  let program = read_file filename in 
+    let rec browse_program program acc = 
+      match program with
+      | [] -> []
+      | e::program' -> (acc+1,collect_instr e)::browse_program program' (acc+1)
+    in  browse_program program 0
+  
 
 let print_polish (p:program) : unit = failwith "TODO"
 
