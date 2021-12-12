@@ -118,11 +118,59 @@ let collect_instr line =
       | "WHILE" -> failwith("TODO")
       | "PRINT" -> Print(collect_expr l)
       | _ -> failwith("empty line"))
+
+let rec reprint_polish (program:program) : unit= 
+        let rec print_indentation ind =
+                if ind > 0 then printf "  " ; print_indentation (ind-1) and
+        print_expr (expr:expr) =
+                (match expr with 
+                | Num(i) -> printf "%d " i
+                | Var(n) -> printf "%s " n
+                | Op(o,e1,e2) -> print_op o ; print_expr e1 ; print_expr e2) and
+        print_op (op:op) = 
+                (match op with
+                | Add -> printf "+ " 
+                | Sub -> printf "- " 
+                | Mul -> printf "* "
+                | Div -> printf"/ " 
+                | Mod -> printf "%% ") and 
+        print_cond (cond:cond) = 
+                (match cond with
+                | (e1,c,e2) -> print_expr e1 ; print_comp c ; print_expr e2) and
+        print_comp (comp:comp) =
+                (match comp with
+                | Eq -> printf "= "
+                | Ne -> printf "<> "
+                | Lt -> printf "< "
+                | Le -> printf "<= "
+                | Gt -> printf "> "
+                | Ge -> printf ">= ") and
+        print_block (block:block) = 
+                printf "\n" ; reprint_polish block and
+        print_instr (instr:instr) =
+              (match instr with
+                | Set(n,e) -> (printf "%s := " n ) ; (print_expr e)
+                | Read(n) -> printf "READ %s" n 
+                | Print(e) -> printf "PRINT " ; print_expr e 
+                | If(c,b,b2) -> printf "IF " ; print_cond c ; print_block b ; printf "ELSE " ; print_block b2 
+                | While(c,b) -> printf "WHILE" ; print_cond c ; reprint_polish b ) in
+        match program with
+        | [] -> printf "" 
+        | e::l -> print_instr (snd e) ; printf "\n"  ; reprint_polish l;;
+
 (***********************************************************************)
 
 (* tests *)
 let file_content = read_file "exemples/abs.p";;
-let () = List.iter (printf "%s ") file_content;;
+(* let () = List.iter (printf "%s ") file_content;; *)
+let condi = (Var("n"),Lt,Num(0));;
+let block1 = [(3,Set("res",Op(Sub,Num(0),Var("n"))))];;
+let block2 = [(5,Set("res",Var("n")))];;
+let ifs = If(condi,block2,block1);;
+let abs = [(1,Read("n"));(2,ifs);(6,Print(Var("res")))];;
+
+reprint_polish abs;
+printf "\n";;
 
 (***********************************************************************)
 
