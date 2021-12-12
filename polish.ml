@@ -119,7 +119,9 @@ let collect_instr line =
       | "PRINT" -> Print(collect_expr l)
       | _ -> failwith("empty line"))
 
-let rec reprint_polish (program:program) (a:int) : unit= 
+let is_empty (ls: 'a list) = List.length ls = 0;;
+
+let rec reprint_polish (program:program) (ind_nbr:int) : unit= 
         let rec print_indentation ind =
                 if ind > 0 then (printf "  " ; print_indentation (ind-1)) and
         print_expr (expr:expr) =
@@ -152,11 +154,11 @@ let rec reprint_polish (program:program) (a:int) : unit=
                 | Set(n,e) -> (printf "%s := " n ) ; (print_expr e)
                 | Read(n) -> printf "READ %s" n 
                 | Print(e) -> printf "PRINT " ; print_expr e 
-                | If(c,b,b2) -> printf "IF " ; print_cond c ; print_block b (ind_nbr+1); printf "\nELSE " ; print_block b2 (ind_nbr+1)
+                | If(c,b,b2) -> printf "IF " ; print_cond c ; print_block b (ind_nbr+1);  if not(is_empty b2) then (printf "\nELSE " ; print_block b2 (ind_nbr+1))
                 | While(c,b) -> printf "WHILE" ; print_cond c ; reprint_polish b ind_nbr ) in
         match program with
-        | e::[] -> print_instr (snd e) a 
-        | e::l -> print_instr (snd e) a; printf "\n"  ; reprint_polish l a
+        | e::[] -> print_instr (snd e) ind_nbr
+        | e::l -> print_instr (snd e) ind_nbr; printf "\n"  ; reprint_polish l ind_nbr
         | _ -> printf "";;
 
 (***********************************************************************)
