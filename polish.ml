@@ -164,14 +164,15 @@ let rec reprint_polish (program:program) (ind_nbr:int) : unit=
 (***********************************************************************)
 
 (* tests *)
-let file_content = read_file "exemples/abs.p";;
+(* let file_content = read_file "exemples/abs.p";; *)
 (* let () = List.iter (printf "%s ") file_content;; *)
+
+(* absolute value function *)
 let condi = (Var("n"),Lt,Num(0));;
 let block1 = [(3,Set("res",Op(Sub,Num(0),Var("n"))))];;
 let block2 = [(5,Set("res",Var("n")))];;
-let ifs = If(condi,block2,block1);;
+let ifs = If(condi,block1,block2);;
 let abs = [(1,Read("n"));(2,ifs);(6,Print(Var("res")))];;
-
 reprint_polish abs 0;
 printf "\n";;
 
