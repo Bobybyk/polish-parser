@@ -152,11 +152,12 @@ let rec reprint_polish (program:program) : unit=
                 | Set(n,e) -> (printf "%s := " n ) ; (print_expr e)
                 | Read(n) -> printf "READ %s" n 
                 | Print(e) -> printf "PRINT " ; print_expr e 
-                | If(c,b,b2) -> printf "IF " ; print_cond c ; print_block b ; printf "ELSE " ; print_block b2 
+                | If(c,b,b2) -> printf "IF " ; print_cond c ; print_block b ; printf "\nELSE " ; print_block b2 
                 | While(c,b) -> printf "WHILE" ; print_cond c ; reprint_polish b ) in
         match program with
-        | [] -> printf "" 
-        | e::l -> print_instr (snd e) ; printf "\n"  ; reprint_polish l;;
+        | e::[] -> print_instr (snd e)
+        | e::l -> print_instr (snd e) ; printf "\n"  ; reprint_polish l
+        | _ -> printf "";;
 
 (***********************************************************************)
 
