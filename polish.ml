@@ -119,9 +119,9 @@ let collect_instr line =
       | "PRINT" -> Print(collect_expr l)
       | _ -> failwith("empty line"))
 
-let rec reprint_polish (program:program) : unit= 
+let rec reprint_polish (program:program) (a:int) : unit= 
         let rec print_indentation ind =
-                if ind > 0 then printf "  " ; print_indentation (ind-1) and
+                if ind > 0 then (printf "  " ; print_indentation (ind-1)) and
         print_expr (expr:expr) =
                 (match expr with 
                 | Num(i) -> printf "%d " i
@@ -145,18 +145,18 @@ let rec reprint_polish (program:program) : unit=
                 | Le -> printf "<= "
                 | Gt -> printf "> "
                 | Ge -> printf ">= ") and
-        print_block (block:block) = 
-                printf "\n" ; reprint_polish block and
-        print_instr (instr:instr) =
+        print_block (block:block) ind_nbr = 
+                printf "\n" ; print_indentation ind_nbr ;reprint_polish block ind_nbr and
+        print_instr (instr:instr) ind_nbr =
               (match instr with
                 | Set(n,e) -> (printf "%s := " n ) ; (print_expr e)
                 | Read(n) -> printf "READ %s" n 
                 | Print(e) -> printf "PRINT " ; print_expr e 
-                | If(c,b,b2) -> printf "IF " ; print_cond c ; print_block b ; printf "\nELSE " ; print_block b2 
-                | While(c,b) -> printf "WHILE" ; print_cond c ; reprint_polish b ) in
+                | If(c,b,b2) -> printf "IF " ; print_cond c ; print_block b (ind_nbr+1); printf "\nELSE " ; print_block b2 (ind_nbr+1)
+                | While(c,b) -> printf "WHILE" ; print_cond c ; reprint_polish b ind_nbr ) in
         match program with
-        | e::[] -> print_instr (snd e)
-        | e::l -> print_instr (snd e) ; printf "\n"  ; reprint_polish l
+        | e::[] -> print_instr (snd e) a 
+        | e::l -> print_instr (snd e) a; printf "\n"  ; reprint_polish l a
         | _ -> printf "";;
 
 (***********************************************************************)
@@ -170,7 +170,7 @@ let block2 = [(5,Set("res",Var("n")))];;
 let ifs = If(condi,block2,block1);;
 let abs = [(1,Read("n"));(2,ifs);(6,Print(Var("res")))];;
 
-reprint_polish abs;
+reprint_polish abs 0;
 printf "\n";;
 
 (***********************************************************************)
