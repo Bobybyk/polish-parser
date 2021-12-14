@@ -108,16 +108,19 @@ let rec collect_expr line : expr=
 (* Ici on va chercher à collecter le type d'instruction du début de la ligne 
   passée en argument. Pour chaque type d'instruction identifiée, on crée la bonne
   structure avec les opérateurs et expressions associées *)
-let collect_instr line : instr=
-  let line_per_string = String.split_on_char ' ' line in
-  match line_per_string with
-    | [] -> failwith("empty line")
-    | e::l -> (match e with
-      | "READ" -> Read(collect_name l) 
-      | "IF" -> failwith("TODO")
-      | "WHILE" -> failwith("TODO")
-      | "PRINT" -> Print(collect_expr l)
-      | _ -> failwith("empty line"))
+let collect_instr (lines:(position * string) list ) : ( (position * instr) * ((position * string) list))=
+  (match lines with
+  | [] -> failwith("Empty")
+  | e::l -> let line = snd e and pos = fst e in
+            let line_split = String.split_on_char ' ' line in
+            (match line_split with
+             | [] -> failwith("Empty")
+             | first::rest -> (match first with
+                                | "READ" -> ( (pos,Read(collect_name rest)) ,l)
+                                | "IF" -> failwith("TODO")
+                                | "WHILE" -> failwith("TODO")
+                                | "PRINT" -> ( (pos,Print(collect_expr rest)) ,l)
+                                | _ -> failwith("error"))))
 
 let is_empty (ls: 'a list) : bool = List.length ls = 0;;
 
@@ -186,7 +189,7 @@ let read_polish (filename:string) : program =
       |e::l -> (acc,e)::(number_lines l (acc+1)) in
   let lines_raw = number_lines program 1 in
   let rec browse_program (program: program) (lines_to_parse:(position * string) list) : program=
-    let res = ((0,Read("n")),[(1,"test")]) in
+    let res = (collect_instr lines_to_parse) in (* to replace later with a function call to collect instr *)
     match (snd res) with
     | [] -> program
     | _ -> browse_program ((fst res)::program) (snd res)
