@@ -180,15 +180,17 @@ printf "\n";;
 
 let read_polish (filename:string) : program = 
   let program = read_file filename in 
-    let rec number_lines (prg: string list) acc : (position * string ) list =
+  let rec number_lines (prg: string list) acc : (position * string ) list =
       match prg with 
-      |[] -> failwith("Empty line")
+      | [] -> failwith("Empty line")
       |e::l -> (acc,e)::(number_lines l (acc+1)) in
-    let rec browse_program (program:string list) (acc:int) = 
-      match program with
-      | [] -> []
-      | e::program' -> (acc+1,collect_instr e)::browse_program program' (acc+1)
-    in  browse_program program 0
+  let lines_raw = number_lines program 1 in
+  let rec browse_program (program: program) (lines_to_parse:(position * string) list) : program=
+    let res = ((0,Read("n")),[(1,"test")]) in
+    match (snd res) with
+    | [] -> program
+    | _ -> browse_program ((fst res)::program) (snd res)
+  in List.rev (browse_program [] lines_raw) ;;
   
 
 let print_polish (p:program) : unit = failwith "TODO"
