@@ -95,7 +95,7 @@ let is_int str : bool=
   dans une structure Op avec ses valeurs *)
 let rec collect_expr line : expr=
   match line with
-    | [] -> failwith("empty line")
+    | [] -> failwith("empty line collect expr")
     | e::e'::l -> (match e with
       | "+" -> Op(Add, collect_expr (e'::l), collect_expr l)
       | "-" -> Op(Sub, collect_expr (e'::l), collect_expr l)
@@ -110,11 +110,11 @@ let rec collect_expr line : expr=
   structure avec les opérateurs et expressions associées *)
 let collect_instr (lines:(position * string) list ) : ( (position * instr) * ((position * string) list))=
   (match lines with
-  | [] -> failwith("Empty")
+  | [] -> failwith("Empty line start collect instr")
   | e::l -> let line = snd e and pos = fst e in
             let line_split = String.split_on_char ' ' line in
             (match line_split with
-             | [] -> failwith("Empty")
+             | [] -> failwith("Empty string split on char")
              | first::rest -> (match first with
                                 | "READ" -> ( (pos,Read(collect_name rest)) ,l)
                                 | "IF" -> failwith("TODO")
@@ -160,7 +160,7 @@ let rec reprint_polish (program:program) (ind_nbr:int) : unit=
                 | If(c,b,b2) -> printf "IF " ; print_cond c ; print_block b (ind_nbr+1);  if not(is_empty b2) then (printf "\nELSE " ; print_block b2 (ind_nbr+1))
                 | While(c,b) -> printf "WHILE" ; print_cond c ; reprint_polish b ind_nbr ) in
         match program with
-        | e::[] -> print_instr (snd e) ind_nbr
+        | e::[] -> print_instr (snd e) ind_nbr ; printf "\n"
         | e::l -> print_instr (snd e) ind_nbr; printf "\n"  ; reprint_polish l ind_nbr
         | _ -> printf "";;
 
@@ -176,8 +176,8 @@ let block1 = [(3,Set("res",Op(Sub,Num(0),Var("n"))))];;
 let block2 = [(5,Set("res",Var("n")))];;
 let ifs = If(condi,block1,block2);;
 let abs = [(1,Read("n"));(2,ifs);(6,Print(Var("res")))];;
-reprint_polish abs 0;
-printf "\n";;
+(* reprint_polish abs 0; 
+printf "\n";; *)
 
 (***********************************************************************)
 
@@ -185,18 +185,18 @@ let read_polish (filename:string) : program =
   let program = read_file filename in 
   let rec number_lines (prg: string list) acc : (position * string ) list =
       match prg with 
-      | [] -> failwith("Empty line")
-      |e::l -> (acc,e)::(number_lines l (acc+1)) in
+      | [] -> []
+      | e::l -> (acc,e)::(number_lines l (acc+1)) in
   let lines_raw = number_lines program 1 in
-  let rec browse_program (program: program) (lines_to_parse:(position * string) list) : program=
-    let res = (collect_instr lines_to_parse) in (* to replace later with a function call to collect instr *)
+  let rec browse_program (lines_to_parse:(position * string) list) : program=
+    let res = (collect_instr lines_to_parse) in
     match (snd res) with
-    | [] -> program
-    | _ -> browse_program ((fst res)::program) (snd res)
-  in List.rev (browse_program [] lines_raw) ;;
+    | [] -> (fst res)::[]
+    | _ -> (fst res)::(browse_program (snd res))
+  in browse_program lines_raw;;
   
 
-let print_polish (p:program) : unit = failwith "TODO"
+let print_polish (p:program) : unit = reprint_polish p 0;;
 
 let eval_polish (p:program) : unit = failwith "TODO"
 
