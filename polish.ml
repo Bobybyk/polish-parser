@@ -93,7 +93,7 @@ let is_int str : bool=
 
 (* Ici on parcourt la ligne pour identifier les opérateurs qu'on va ajouter
   dans une structure Op avec ses valeurs *)
-let rec collect_expr line : expr=
+let rec collect_expr (line:string list) : expr =
   match line with
     | [] -> failwith("empty line collect expr")
     | e::e'::l -> (match e with
@@ -103,24 +103,66 @@ let rec collect_expr line : expr=
       | "/" -> Op(Div, collect_expr (e'::l), collect_expr l)
       | "%" -> Op(Mod, collect_expr (e'::l), collect_expr l)
       | _ -> if is_int e then Num(int_of_string e) else Var(e))
-    | e::l -> if is_int e then Num(int_of_string e) else Var(e) 
+    | e::l -> if is_int e then Num(int_of_string e) else Var(e)
+
+let get_indentation (line:(int * string)) :int =
+        let rec aux line i = if line.[i] = ' ' && line.[i+1] = ' '
+        then
+                (aux line i+2)
+        else if line.[i] = ' ' && line.[i+1] <> ' '
+        then 
+                failwith("Bad indentation") 
+        else
+                i / 2
+        in aux (snd line) 0;;
+
+let rec is_comp (str: string list) (ind:int) : (comp * int) = 
+  match str with
+  |[] -> failwith("Empty")
+  |e::l -> (match e with
+  | "=" -> (Eq,ind)
+  | "<" -> (Lt,ind)
+  | "<=" -> (Le,ind)
+  | ">" -> (Gt,ind)
+  | ">=" -> (Ge,ind)
+  | "<>" -> (Ne,ind)
+  | _ -> is_comp l (ind+1));;
+
+let rec get_string_from_i (str:'a list) (i:int) : 'a list =
+  match str with
+  |[] -> failwith("Empty")
+  |e::l -> if i = 0 then l else get_string_from_i l (i-1);; 
+
+let collect_cond (line:string list) : cond = failwith("TODO");;
+
+let collect_block (lines: (position * string) list) (ind:int) : (block * ((position * string) list) ) = 
+  (match lines with
+  | [] -> failwith("Empty line collect block")
+  | e::l -> if get_indentation e = ind 
+            then 
+              failwith("TODO")
+            else
+              failwith("TODO")) and
 
 (* Ici on va chercher à collecter le type d'instruction du début de la ligne 
   passée en argument. Pour chaque type d'instruction identifiée, on crée la bonne
   structure avec les opérateurs et expressions associées *)
-let collect_instr (lines:(position * string) list ) : ( (position * instr) * ((position * string) list))=
+collect_instr (lines:(position * string) list ) : ( (position * instr) * ((position * string) list))=
   (match lines with
   | [] -> failwith("Empty line start collect instr")
-  | e::l -> let line = snd e and pos = fst e in
-            let line_split = String.split_on_char ' ' line in
+  | e::l -> let line = snd e and 
+              pos = fst e in
+              let line_split = String.split_on_char ' ' line and
+              ind = get_indentation e in
             (match line_split with
              | [] -> failwith("Empty string split on char")
              | first::rest -> (match first with
                                 | "READ" -> ( (pos,Read(collect_name rest)) ,l)
                                 | "IF" -> failwith("TODO")
-                                | "WHILE" -> failwith("TODO")
+                                | "WHILE" -> failwith("TODO while")
                                 | "PRINT" -> ( (pos,Print(collect_expr rest)) ,l)
-                                | _ -> failwith("error"))))
+                                | "COMMENT" -> failwith("TODO")
+                                | _ -> failwith("error"))));;
 
 let is_empty (ls: 'a list) : bool = List.length ls = 0;;
 
@@ -160,7 +202,7 @@ let rec reprint_polish (program:program) (ind_nbr:int) : unit=
                 | If(c,b,b2) -> printf "IF " ; print_cond c ; print_block b (ind_nbr+1);  if not(is_empty b2) then (printf "\nELSE " ; print_block b2 (ind_nbr+1))
                 | While(c,b) -> printf "WHILE" ; print_cond c ; reprint_polish b ind_nbr ) in
         match program with
-        | e::[] -> print_instr (snd e) ind_nbr ; printf "\n"
+        | e::[] -> print_instr (snd e) ind_nbr
         | e::l -> print_instr (snd e) ind_nbr; printf "\n"  ; reprint_polish l ind_nbr
         | _ -> printf "";;
 
@@ -176,8 +218,8 @@ let block1 = [(3,Set("res",Op(Sub,Num(0),Var("n"))))];;
 let block2 = [(5,Set("res",Var("n")))];;
 let ifs = If(condi,block1,block2);;
 let abs = [(1,Read("n"));(2,ifs);(6,Print(Var("res")))];;
-(* reprint_polish abs 0; 
-printf "\n";; *)
+(*reprint_polish abs 0;;
+printf "\n";;*) 
 
 (***********************************************************************)
 
@@ -188,12 +230,12 @@ let read_polish (filename:string) : program =
       | [] -> []
       | e::l -> (acc,e)::(number_lines l (acc+1)) in
   let lines_raw = number_lines program 1 in
-  let rec browse_program (lines_to_parse:(position * string) list) : program=
+  let rec browse_string_list (lines_to_parse:(position * string) list) : program=
     let res = (collect_instr lines_to_parse) in
     match (snd res) with
     | [] -> (fst res)::[]
-    | _ -> (fst res)::(browse_program (snd res))
-  in browse_program lines_raw;;
+    | _ -> (fst res)::(browse_string_list (snd res))
+  in browse_string_list lines_raw;;
   
 
 let print_polish (p:program) : unit = reprint_polish p 0;;
