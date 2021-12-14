@@ -68,7 +68,7 @@ let eval_comp condition =
  avec, pour chaque élément de cette liste, un "mot" identifié préalablement par 
  des caractères vides comme délimiteurs en début et fin
 *)
-let read_file (file:string) =
+let read_file (file:string) : (string list)=
   let ic = open_in file in
   let try_read () =
     try Some (input_line ic) with End_of_file -> None in
@@ -79,13 +79,13 @@ let read_file (file:string) =
 
 (* Fonction appelée si l'instruction en préfix est de type READ.
   On renvoie donc e la suite de la ligne à lire*)
-let collect_name line =
+let collect_name line : name =
   match line with 
     | [] -> failwith("empty line")
     | e::line' -> e;;
 
 (* Fonction pour évaluer si l'argument est un entier *)
-let is_int str =
+let is_int str : bool=
   let verif_num n =
     try (int_of_string n |> string_of_int) = n
     with Failure _ -> false in 
@@ -93,7 +93,7 @@ let is_int str =
 
 (* Ici on parcourt la ligne pour identifier les opérateurs qu'on va ajouter
   dans une structure Op avec ses valeurs *)
-let rec collect_expr line =
+let rec collect_expr line : expr=
   match line with
     | [] -> failwith("empty line")
     | e::e'::l -> (match e with
@@ -108,7 +108,7 @@ let rec collect_expr line =
 (* Ici on va chercher à collecter le type d'instruction du début de la ligne 
   passée en argument. Pour chaque type d'instruction identifiée, on crée la bonne
   structure avec les opérateurs et expressions associées *)
-let collect_instr line =
+let collect_instr line : instr=
   let line_per_string = String.split_on_char ' ' line in
   match line_per_string with
     | [] -> failwith("empty line")
@@ -119,7 +119,7 @@ let collect_instr line =
       | "PRINT" -> Print(collect_expr l)
       | _ -> failwith("empty line"))
 
-let is_empty (ls: 'a list) = List.length ls = 0;;
+let is_empty (ls: 'a list) : bool = List.length ls = 0;;
 
 let rec reprint_polish (program:program) (ind_nbr:int) : unit= 
         let rec print_indentation ind =
@@ -180,7 +180,11 @@ printf "\n";;
 
 let read_polish (filename:string) : program = 
   let program = read_file filename in 
-    let rec browse_program program acc = 
+    let rec number_lines (prg: string list) acc : (position * string ) list =
+      match prg with 
+      |[] -> failwith("Empty line")
+      |e::l -> (acc,e)::(number_lines l (acc+1)) in
+    let rec browse_program (program:string list) (acc:int) = 
       match program with
       | [] -> []
       | e::program' -> (acc+1,collect_instr e)::browse_program program' (acc+1)
