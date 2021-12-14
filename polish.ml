@@ -1,5 +1,5 @@
 open Printf
-
+  
 (** Projet Polish -- Analyse statique d'un mini-langage impératif *)
 
 (** Note : cet embryon de projet est pour l'instant en un seul fichier
@@ -176,20 +176,37 @@ let abs = [(1,Read("n"));(2,ifs);(6,Print(Var("res")))];;
 reprint_polish abs 0;
 printf "\n";;
 
+(******************************eval_polish******************************)
+
+
+
+let eval_instr (instr:instr) : unit =
+  match instr with 
+    | Set(n,e) -> failwith("eval Set to do")
+    | Read(n) -> failwith("eval Read to do")
+    | Print(e) -> failwith("eval Print to do")
+    | If(c, b, b2) -> failwith("eval If to do")
+    | While(c, d) -> failwith("eval while to do")
+
+let rec browse_program (program:program) : unit =
+  match program with
+    | [] -> failwith("maybe to do")
+    | instr::program' -> eval_instr (snd instr) ; browse_program program'
 (***********************************************************************)
 
 let read_polish (filename:string) : program = 
   let program = read_file filename in 
-    let rec browse_program program acc = 
+    let rec browse_string_list program acc = 
       match program with
       | [] -> []
-      | e::program' -> (acc+1,collect_instr e)::browse_program program' (acc+1)
-    in  browse_program program 0
+      | e::program' -> (acc+1,collect_instr e)::browse_string_list program' (acc+1)
+    in  browse_string_list program 0
   
 
 let print_polish (p:program) : unit = failwith "TODO"
 
-let eval_polish (p:program) : unit = failwith "TODO"
+let eval_polish (p:program) : unit = 
+  failwith "TODO"
 
 let usage () =
   print_string "Polish : analyse statique d'un mini-langage\n";
