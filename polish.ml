@@ -178,20 +178,28 @@ printf "\n";;
 
 (******************************eval_polish******************************)
 
-let read env name = let reponse = read_int() in (name, reponse)::env;;
+let eval_read name env = let reponse = read_int() in (name, reponse)::env;;
+
+let eval_print (expr:expr) list_var :unit =
+  match expr with
+    | Num(i) -> printf "%d " i
+    | Var(n) -> printf "%s " n
+    | _ -> ()
 
 let eval_instr (instr:instr) list_var =
   match instr with 
     | Set(n,e) -> failwith("eval Set to do")
-    | Read(n) -> read list_var n
-    | Print(e) -> failwith("eval Print to do")
+    | Read(n) -> eval_read n list_var
+    | Print(e) -> eval_print e list_var ; list_var
     | If(c, b, b2) -> failwith("eval If to do")
     | While(c, d) -> failwith("eval while to do")
 
 let rec browse_program (program:program) list_var : unit =
   match program with
     | [] -> failwith("maybe to do")
-    | instr::program' -> browse_program program' (eval_instr (snd instr) list_var)
+    | instr::program' -> browse_program program' (eval_instr (snd instr) list_var);;
+
+browse_program abs [];;
 (***********************************************************************)
 
 let read_polish (filename:string) : program = 
