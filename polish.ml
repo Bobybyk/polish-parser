@@ -288,7 +288,6 @@ let rec browse_program (program:program) list_var : unit =
     | [] -> failwith("maybe to do")
     | instr::program' -> browse_program program' (eval_instr (snd instr) list_var);;
 
-browse_program test [];;
 (***********************************************************************)
 
 let read_polish (filename:string) : program = 
