@@ -185,7 +185,7 @@ collect_instr (lines:(position * string) list ) : ( (position * instr) * ((posit
                                                 block = (collect_block l (ind+1)) in 
                                                 ( (pos,While(condition,(fst block))), (snd block))
                                 | "PRINT" -> ( (pos,Print(collect_expr rest)) ,l)
-                                | "COMMENT" -> failwith("TODO comment")
+                                | "COMMENT" -> (collect_instr l)
                                 | _ -> ((pos,(collect_set line_split )),l) ))) 
 and
 
@@ -234,7 +234,7 @@ let rec reprint_polish (program:program) (ind_nbr:int) : unit=
                 | While(c,b) -> printf "WHILE " ; print_cond c ; print_block b (ind_nbr+1) ) in
         match program with
         | e::[] -> print_instr (snd e) ind_nbr
-        | e::l -> print_instr (snd e) ind_nbr; printf "\n"  ; reprint_polish l ind_nbr ; printf("\n")
+        | e::l -> print_instr (snd e) ind_nbr; printf "\n"  ; reprint_polish l ind_nbr
         | _ -> printf "";;
 
 (***********************************************************************)
