@@ -105,6 +105,22 @@ let rec collect_expr (line:string list) : expr =
       | _ -> if is_int e then Num(int_of_string e) else Var(e))
     | e::l -> if is_int e then Num(int_of_string e) else Var(e)
 
+let rec get_set_index (line: string list) (ind:int): int =
+  match line with 
+  | [] -> failwith("No affectation symbol found")
+  | e::l -> (match e with
+              | ":=" -> ind
+              | _ -> get_set_index l (ind+1));;
+
+let rec get_string_from_i (str:'a list) (i:int) : 'a list =
+  match str with
+  |[] -> failwith("Empty")
+  |e::l -> if i = 0 then l else get_string_from_i l (i-1);; 
+
+let collect_set (line: string list) : instr =
+  let index = get_set_index line 0 in
+  Set((collect_name line) , (collect_expr (get_string_from_i line index ) ));;
+
 let get_indentation (line:(int * string)) :int =
     let words = (String.split_on_char ' ' (snd line)) in 
     let rec aux (words: string list) acc = 
@@ -124,11 +140,6 @@ let rec is_comp (str: string list) (ind:int) : (comp * int) =
             | ">=" -> (Ge,ind)
             | "<>" -> (Ne,ind)
             | _ -> is_comp l (ind+1)));;
-
-let rec get_string_from_i (str:'a list) (i:int) : 'a list =
-  match str with
-  |[] -> failwith("Empty")
-  |e::l -> if i = 0 then l else get_string_from_i l (i-1);; 
 
 let rec get_string_without_indentation (str: string list) = 
   match str with
@@ -174,8 +185,8 @@ collect_instr (lines:(position * string) list ) : ( (position * instr) * ((posit
                                                 block = (collect_block l (ind+1)) in 
                                                 ( (pos,While(condition,(fst block))), (snd block))
                                 | "PRINT" -> ( (pos,Print(collect_expr rest)) ,l)
-                                | "COMMENT" -> failwith("TODO")
-                                | _ -> failwith("Unknown keyword: "^first) ))) 
+                                | "COMMENT" -> failwith("TODO comment")
+                                | _ -> ((pos,(collect_set line_split )),l) ))) 
 and
 
 collect_else (lines: (position * string) list) (ind:int) : (block * ((position * string) list)) =
@@ -223,7 +234,7 @@ let rec reprint_polish (program:program) (ind_nbr:int) : unit=
                 | While(c,b) -> printf "WHILE " ; print_cond c ; print_block b (ind_nbr+1) ) in
         match program with
         | e::[] -> print_instr (snd e) ind_nbr
-        | e::l -> print_instr (snd e) ind_nbr; printf "\n"  ; reprint_polish l ind_nbr
+        | e::l -> print_instr (snd e) ind_nbr; printf "\n"  ; reprint_polish l ind_nbr ; printf("\n")
         | _ -> printf "";;
 
 (***********************************************************************)
@@ -261,7 +272,7 @@ let read_polish (filename:string) : program =
 
 let print_polish (p:program) : unit = reprint_polish p 0;;
 
-let eval_polish (p:program) : unit = failwith "TODO"
+let eval_polish (p:program) : unit = failwith "TODO eval"
 
 let usage () =
   print_string "Polish : analyse statique d'un mini-langage\n";
