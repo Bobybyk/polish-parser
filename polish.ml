@@ -95,7 +95,7 @@ let is_int str : bool=
   dans une structure Op avec ses valeurs *)
 let rec collect_expr (line:string list) : expr =
   match line with
-    | [] -> failwith("empty line collect expr")
+    | [] -> failwith("Unrecognized operator")
     | e::e'::l -> (match e with
       | "+" -> Op(Add, collect_expr (e'::l), collect_expr l)
       | "-" -> Op(Sub, collect_expr (e'::l), collect_expr l)
@@ -115,7 +115,7 @@ let get_indentation (line:(int * string)) :int =
 
 let rec is_comp (str: string list) (ind:int) : (comp * int) = 
   (match str with
-  |[] -> failwith("Empty")
+  | [] -> failwith("No comparator found")
   |e::l -> (match e with
             | "=" -> (Eq,ind)
             | "<" -> (Lt,ind)
@@ -148,7 +148,9 @@ let rec collect_block (lines: (position * string) list) (ind:int) : (block * ((p
               let block = collect_block (snd first_instruction) ind in
               (((fst first_instruction)::(fst block)),(snd block))
             else
-              ([],lines)) and
+              ([],lines)) 
+
+and
 
 (* Ici on va chercher à collecter le type d'instruction du début de la ligne 
   passée en argument. Pour chaque type d'instruction identifiée, on crée la bonne
@@ -164,13 +166,22 @@ collect_instr (lines:(position * string) list ) : ( (position * instr) * ((posit
              | [] -> failwith("Empty string split on char")
              | first::rest -> (match first with
                                 | "READ" -> ( (pos,Read(collect_name rest)) ,l)
-                                | "IF" -> failwith("TODO")
+                                | "IF" -> (let condition = (collect_cond rest) in 
+                                          let block_if = (collect_block l (ind+1)) in
+                                          let block_else = (collect_else (snd block_if) (ind+1) ) in 
+                                          ((pos,If(condition,(fst block_if),(fst block_else))),(snd block_else)) )  
                                 | "WHILE" -> let condition = (collect_cond rest) and 
                                                 block = (collect_block l (ind+1)) in 
                                                 ( (pos,While(condition,(fst block))), (snd block))
                                 | "PRINT" -> ( (pos,Print(collect_expr rest)) ,l)
                                 | "COMMENT" -> failwith("TODO")
-                                | _ -> failwith("Error recognizing element") )));;
+                                | _ -> failwith("Unknown keyword: "^first) ))) 
+and
+
+collect_else (lines: (position * string) list) (ind:int) : (block * ((position * string) list)) =
+  match lines with
+  | [] -> ([],[])
+  | e::l -> if String.equal (snd e) "ELSE" then (collect_block l ind) else ([],lines);;
 
 let is_empty (ls: 'a list) : bool = List.length ls = 0;;
 
