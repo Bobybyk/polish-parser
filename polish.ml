@@ -201,8 +201,9 @@ let rec reprint_polish (program:program) (ind_nbr:int) : unit=
                 | Gt -> printf "> "
                 | Ge -> printf ">= ") and
         print_block (block:block) ind_nbr = 
-                printf "\n" ; print_indentation ind_nbr ;reprint_polish block ind_nbr and
+                printf "\n" ; reprint_polish block ind_nbr and
         print_instr (instr:instr) ind_nbr =
+                print_indentation ind_nbr ;
               (match instr with
                 | Set(n,e) -> (printf "%s := " n ) ; (print_expr e)
                 | Read(n) -> printf "READ %s" n 
@@ -222,12 +223,12 @@ let rec reprint_polish (program:program) (ind_nbr:int) : unit=
 
 (* absolute value function *)
 let condi = (Var("n"),Lt,Num(0));;
-let block1 = [(3,Set("res",Op(Sub,Num(0),Var("n"))))];;
+let block1 = [(3,Set("res",Op(Sub,Num(0),Var("n"))));(0,Print(Var("Test")))];;
 let block2 = [(5,Set("res",Var("n")))];;
 let ifs = If(condi,block1,block2);;
 let abs = [(1,Read("n"));(2,ifs);(6,Print(Var("res")))];;
 (*reprint_polish abs 0;;
-printf "\n";;*)
+printf "\n";; *)
 
 
 (***********************************************************************)
