@@ -1,4 +1,5 @@
 open Printf
+open Types
   
 (** Projet Polish -- Analyse statique d'un mini-langage impératif *)
 
@@ -6,47 +7,6 @@ open Printf
     polish.ml. Il est recommandé d'architecturer ultérieurement votre
     projet en plusieurs fichiers source de tailles raisonnables *)
 
-(*****************************************************************************)
-(** Syntaxe abstraite Polish (types imposés, ne pas changer sauf extensions) *)
-
-(** Position : numéro de ligne dans le fichier, débutant à 1 *)
-type position = int
-
-(** Nom de variable *)
-type name = string
-
-(** Opérateurs arithmétiques : + - * / % *)
-type op = Add | Sub | Mul | Div | Mod
-
-(** Expressions arithmétiques *)
-type expr =
-  | Num of int
-  | Var of name
-  | Op of op * expr * expr
-
-(** Opérateurs de comparaisons *)
-type comp =
-| Eq (* = *)
-| Ne (* Not equal, <> *)
-| Lt (* Less than, < *)
-| Le (* Less or equal, <= *)
-| Gt (* Greater than, > *)
-| Ge (* Greater or equal, >= *)
-
-(** Condition : comparaison entre deux expressions *)
-type cond = expr * comp * expr
-
-(** Instructions *)
-type instr =
-  | Set of name * expr
-  | Read of name
-  | Print of expr
-  | If of cond * block * block
-  | While of cond * block
-and block = (position * instr) list
-
-(* Un programme Polish est un bloc d'instructions *)
-type program = block
 
 
 (* Ici on évalue la valeur de vérité de deux valeurs en fonction d'un opérateur logique *)
@@ -250,8 +210,8 @@ let block2 = [(5,Set("res",Var("n")))];;
 let ifs = If(condi,block1,block2);;
 let abs = [(1,Read("n"));(2,ifs);(6,Print(Var("res")))];;
 let test = [(1,Set("t",Var("n"))); (6,Print(Var("t")))];;
-reprint_polish abs 0;
-printf "\n";;
+(* reprint_polish abs 0;
+printf "\n";; *)
 
 (******************************eval_polish******************************)
 
