@@ -6,6 +6,11 @@ let is_num (e:expr) : bool =
         | Num(i) -> true
         | _ -> false;;
 
+let is_empty (l: 'a list) : bool =
+        match l with
+        | [] -> true
+        | _ -> false;;
+
 let plus_num (a:expr) (b:expr) : int =
         match a with
         | Num(e1) -> (match b with
@@ -20,12 +25,13 @@ let rec simplify_expr (e: expr) : expr =
                         else e
         | _ -> e;;
 
-let simplify_aux (p: (position * instr) ) : (position * instr) = 
+let rec simplify_aux (p: (position * instr) ) : (position * instr) = 
         match (snd p) with
         | Set(n,e) -> ((fst p),Set(n,(simplify_expr e)))
-        | _ -> p;;
+        | If(c,b1,b2) -> if (is_empty b2) then ((fst p), If(c,(simplify b1),[]))else ((fst p),If(c,(simplify b1),(simplify b2)))
+        | _ -> p
 
-let rec simplify (p:program) : program = 
+and simplify (p:program) : program = 
         match p with
         | [] -> failwith("Empty program")
         | e::[] -> (simplify_aux e)::[]
