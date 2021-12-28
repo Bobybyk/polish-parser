@@ -28,7 +28,10 @@ let rec simplify_expr (e: expr) : expr =
 let rec simplify_aux (p: (position * instr) ) : (position * instr) = 
         match (snd p) with
         | Set(n,e) -> ((fst p),Set(n,(simplify_expr e)))
-        | If(c,b1,b2) -> if (is_empty b2) then ((fst p), If(c,(simplify b1),[]))else ((fst p),If(c,(simplify b1),(simplify b2)))
+        | If(c,b1,b2) -> if (is_empty b2) 
+                                then ((fst p), If(c,(simplify b1),[]))
+                                else ((fst p),If(c,(simplify b1),(simplify b2)))
+        | While(c,b) -> ((fst p),While(c,(simplify b)))
         | _ -> p
 
 and simplify (p:program) : program = 
