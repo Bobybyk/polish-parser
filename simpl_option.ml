@@ -11,19 +11,30 @@ let is_empty (l: 'a list) : bool =
         | [] -> true
         | _ -> false;;
 
-let plus_num (a:expr) (b:expr) : int =
-        match a with
-        | Num(e1) -> (match b with
-                        | Num(e2) -> (e1 + e2)
-                        | _ -> failwith("Error plus_num b")) 
-        | _ -> failwith("Error plus_num a");;
-
+let calculate_num (e:expr) : expr =
+        match e with 
+        | Op(o,e1,e2) ->
+                        let a = (match e1 with 
+                                |Num(a) -> a 
+                                | _ ->failwith("Calculate_num a : empty expression")) and
+                        b = (match e2 with
+                                | Num(b) -> b
+                                |_->failwith("Calculate_num b : empty expression")) in 
+                (match o with
+                | Add -> Num((a + b))
+                | Sub -> Num((a - b))
+                | Mul -> Num((a * b))
+                | Div -> Num((a / b))
+                | Mod -> Num((a mod b)))
+        | _ -> failwith("calculate num");;
+        
 let rec simplify_expr (e: expr) : expr =
-        match e with
+        (match e with
         | Op(o,e1,e2) -> if (is_num (simplify_expr e1)) && (is_num (simplify_expr e2)) 
-                        then Num((plus_num e1 e2))
-                        else e
-        | _ -> e;;
+                         then calculate_num e 
+                         else failwith("TODO")
+        (* TODO: detect op type and calculate result accordingly *)
+        | _ -> e);;
 
 let rec simplify_aux (p: (position * instr) ) : (position * instr) = 
         match (snd p) with
