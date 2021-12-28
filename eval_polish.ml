@@ -11,17 +11,31 @@ let eval_print (expr:expr) list_var : unit =
     | Var(n) -> printf "%d " (List.assoc n list_var)
     | _ -> ()
 
+let rec eval_type (e:expr) list_var =
+  match e with
+    | Num(i) -> i
+    | Var(n) -> List.assoc n list_var 
+    | Op(o, e1, e2) -> compute o e1 e2 list_var
+
+and compute (op:op) (e1:expr) (e2:expr) list_var : int =
+  match op with
+    | Add -> eval_type e1 list_var + eval_type e2 list_var
+    | Sub -> eval_type e1 list_var - eval_type e2 list_var
+    | Mul -> eval_type e1 list_var * eval_type e2 list_var
+    | Div -> eval_type e1 list_var / eval_type e2 list_var
+    | Mod -> eval_type e1 list_var mod eval_type e2 list_var
+
 let eval_set (name:name) (expr:expr) list_var : (name * int) list =
   if List.mem_assoc name list_var then 
     (match expr with
-      | Num(i) -> (name, i)::((name, i)::List.remove_assoc name list_var) 
-      | Var(n) -> (name, (List.assoc n list_var))::((name, List.assoc n list_var)::List.remove_assoc name list_var) (* failwith("set var to do") *)
-      | Op(o, e1, e2) -> failwith("set op to do"))
+      | Num(i) -> (name, i)::List.remove_assoc name list_var 
+      | Var(n) -> (name, (List.assoc n list_var))::(name, List.assoc n list_var)::List.remove_assoc name list_var
+      | Op(o, e1, e2) -> (name, (compute o e1 e2 list_var))::List.remove_assoc name list_var)
   else 
     (match expr with
       | Num(i) -> (name, i)::list_var
-      | Var(n) -> (name, (List.assoc n list_var))::list_var (* failwith("set var to do") *)
-      | Op(o, e1, e2) -> failwith("set op to do"))
+      | Var(n) -> (name, (List.assoc n list_var))::list_var
+      | Op(o, e1, e2) -> (name, (compute o e1 e2 list_var))::list_var)
 
 let eval_instr (instr:instr) list_var : (name * int) list =
   match instr with 

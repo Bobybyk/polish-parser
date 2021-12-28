@@ -34,7 +34,7 @@ let block1 = [(3,Set("res",Op(Sub,Num(0),Var("n"))));(0,Print(Var("Test")))];;
 let block2 = [(5,Set("res",Var("n")))];;
 let ifs = If(condi,block1,block2);;
 let abs = [(1,Read("n"));(2,ifs);(6,Print(Var("res")))];;
-let test = [(1,Set("a",Num(6))); (2,Set("b",Var("a"))) ; (3,Print(Var("b")))];;
+let test = [(1,Set("a",Num(6))); (2,Set("b",Num(6))) ; (3,Set("c",Op(Add,Var("a"),Var("b")))) ; (4,Print(Var("c")))];;
 (* reprint_polish abs 0;
 printf "\n";; *)
 
