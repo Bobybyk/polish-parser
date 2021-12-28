@@ -2,6 +2,7 @@ open Printf;;
 open Types;;
 open Reprint;;
 open Read_polish;;
+open Simpl_option;;
   
 (** Projet Polish -- Analyse statique d'un mini-langage impératif *)
 
@@ -51,6 +52,7 @@ let usage () =
 
 let main () =
   match Sys.argv with
+  | [|_;"--simpl";file|] -> print_polish (simplify  (read_polish file))
   | [|_;"--reprint";file|] -> print_polish (read_polish file)
   | [|_;"--eval";file|] -> eval_polish (read_polish file)
   | _ -> usage ()

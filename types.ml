@@ -40,3 +40,9 @@ and block = (position * instr) list
 (* Un programme Polish est un bloc d'instructions *)
 type program = block
 
+(* Fonction pour évaluer si l'argument est un entier *)
+let is_int str : bool=
+  let verif_num n =
+    try (int_of_string n |> string_of_int) = n
+    with Failure _ -> false in 
+  verif_num str;;
