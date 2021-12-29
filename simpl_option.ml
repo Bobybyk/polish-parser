@@ -28,6 +28,7 @@ let calculate_num (e:expr) : expr =
                 | Mod -> Num((a mod b)))
         | _ -> failwith("calculate num: no Op found");;
 
+(* simplifies an expression in which not all operands are nums *)
 let calculate_constants (e:expr) : expr =
         match e with 
         | Op(o,e1,e2) -> if is_num e1 && is_num e2 then calculate_num e         (* if both sides are a Num, simplify the expr *)
@@ -56,6 +57,7 @@ let calculate_constants (e:expr) : expr =
                                 | _ -> failwith("TODO")) 
         | _ -> e;;
         
+(* simplify an expression *)
 let rec simplify_expr (e: expr) : expr =
         (match e with
         | Op(o,e1,e2) -> let ne1 = (is_num (simplify_expr e1)) and
@@ -73,10 +75,12 @@ let rec simplify_expr (e: expr) : expr =
                                 e 
         | _ -> e);;
 
+(* This function is used to simplify the expressions inside a condition *)
 let simplify_condition (c:cond) : cond = 
         match c with
         | (e1,c,e2) -> ((simplify_expr e1),c,(simplify_expr e2));;
 
+(*handles the constants propagatioon in order to simplify expressions *)
 let rec propagate_aux (p: (position * instr) ) : (position * instr) = 
         match (snd p) with
         | Set(n,e) -> ((fst p),Set(n,(simplify_expr e)))
@@ -92,18 +96,24 @@ and propagate (p:program) : program =
         | e::[] -> (propagate_aux e)::[]
         | e::l -> (propagate_aux e)::(propagate l);;
 
+let is_comp_only_nums (c:cond) : bool =
+        match c with
+        | (e1,c,e2) -> (is_num e1) && (is_num e2);;
 
+(* dead code suppression aux function *)
 let dead_code_aux (bl: (position * instr)) : block =
-        match (snd bl) with
-        | If(c,b1,b2) -> if eval_comp c then b1 else b2
-        | While(c,b) -> if eval_comp c then bl::[] else []
+        match (snd bl) with                                     (* evaluate the condition truth value *)
+        | If(c,b1,b2) -> if is_comp_only_nums c then (if eval_comp c then b1 else b2) else bl::[]        (* for the if chooses the right block *)
+        | While(c,b) -> if is_comp_only_nums c then (if eval_comp c then bl::[] else []) else bl::[]     (* for the while removes or not the block*)
         | _ -> bl::[];;
 
+(* dead code suppression main function *)
 let rec dead_code_sup (p:program) : program = 
         match p with
         | [] -> failwith("Empty program")
         | e::[] -> (dead_code_aux e)@[]
         | e::l -> (dead_code_aux e)@(dead_code_sup l);;
 
+(* Main function usable froom outside *)
 let simplify (p:program) : program = 
         dead_code_sup (propagate p);;
