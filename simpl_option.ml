@@ -77,17 +77,33 @@ let simplify_condition (c:cond) : cond =
         match c with
         | (e1,c,e2) -> ((simplify_expr e1),c,(simplify_expr e2));;
 
-let rec simplify_aux (p: (position * instr) ) : (position * instr) = 
+let rec propagate_aux (p: (position * instr) ) : (position * instr) = 
         match (snd p) with
         | Set(n,e) -> ((fst p),Set(n,(simplify_expr e)))
         | If(c,b1,b2) -> if (is_empty b2) 
-                                then ((fst p), If((simplify_condition c),(simplify b1),[]))
-                                else ((fst p),If((simplify_condition c),(simplify b1),(simplify b2)))
-        | While(c,b) -> ((fst p),While((simplify_condition c),(simplify b)))
+                                then ((fst p), If((simplify_condition c),(propagate b1),[]))
+                                else ((fst p),If((simplify_condition c),(propagate b1),(propagate b2)))
+        | While(c,b) -> ((fst p),While((simplify_condition c),(propagate b)))
         | _ -> p
 
-and simplify (p:program) : program = 
+and propagate (p:program) : program = 
         match p with
         | [] -> failwith("Empty program")
-        | e::[] -> (simplify_aux e)::[]
-        | e::l -> (simplify_aux e)::(simplify l);;
+        | e::[] -> (propagate_aux e)::[]
+        | e::l -> (propagate_aux e)::(propagate l);;
+
+
+let dead_code_aux (bl: (position * instr)) : block =
+        match (snd bl) with
+        | If(c,b1,b2) -> if eval_comp c then b1 else b2
+        | While(c,b) -> if eval_comp c then bl::[] else []
+        | _ -> bl::[];;
+
+let rec dead_code_sup (p:program) : program = 
+        match p with
+        | [] -> failwith("Empty program")
+        | e::[] -> (dead_code_aux e)@[]
+        | e::l -> (dead_code_aux e)@(dead_code_sup l);;
+
+let simplify (p:program) : program = 
+        dead_code_sup (propagate p);;

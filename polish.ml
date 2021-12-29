@@ -10,17 +10,6 @@ open Simpl_option;;
     polish.ml. Il est recommandé d'architecturer ultérieurement votre
     projet en plusieurs fichiers source de tailles raisonnables *)
 
-(* Ici on évalue la valeur de vérité de deux valeurs en fonction d'un opérateur logique *)
-let eval_comp condition =
-  let compare val1 comp_type val2 =
-    match comp_type with
-      | Eq -> if val1 = val2 then true else false
-      | Ne -> if val1 = val2 then false else true
-      | Lt -> if val1 < val2 then true else false
-      | Le -> if val1 <= val2 then true else false
-      | Gt -> if val1 > val1 then true else false
-      | Ge -> if val1 >= val2 then true else false
-    in match condition with (val1, comp_type, val2) -> compare val1 comp_type val2;;
 
 (***********************************************************************)
 
