@@ -52,7 +52,7 @@ and eval_instr (instr:instr) list_var : (name * int) list =
     | Read(n) -> eval_read n list_var 
     | Print(e) -> eval_print e list_var ; list_var
     | If(c, b1, b2) -> if eval_comp (block_to_numeric_value c list_var) then browse_block b1 list_var else browse_block b2 list_var    
-    | While(c, d) -> failwith("eval while to do")
+    | While(c, d) -> if eval_comp (block_to_numeric_value c list_var) then eval_instr instr (browse_block d list_var) else list_var
 
 let rec browse_program (program:program) list_var : unit =
   match program with
