@@ -22,13 +22,6 @@ let collect_name line : name =
     | [] -> failwith("empty line")
     | e::line' -> e;;
 
-(* Fonction pour évaluer si l'argument est un entier *)
-let is_int str : bool=
-  let verif_num n =
-    try (int_of_string n |> string_of_int) = n
-    with Failure _ -> false in 
-  verif_num str;;
-
 (* Ici on parcourt la ligne pour identifier les opérateurs qu'on va ajouter
   dans une structure Op avec ses valeurs *)
 let rec collect_expr (line:string list) : expr =

@@ -3,6 +3,7 @@ open Types;;
 open Reprint;;
 open Read_polish;;
 open Eval_polish;;
+open Simpl_option;;
   
 (** Projet Polish -- Analyse statique d'un mini-langage impératif *)
 
@@ -10,17 +11,6 @@ open Eval_polish;;
     polish.ml. Il est recommandé d'architecturer ultérieurement votre
     projet en plusieurs fichiers source de tailles raisonnables *)
 
-(* Ici on évalue la valeur de vérité de deux valeurs en fonction d'un opérateur logique *)
-let eval_comp condition =
-  let compare val1 comp_type val2 =
-    match comp_type with
-      | Eq -> if val1 = val2 then true else false
-      | Ne -> if val1 = val2 then false else true
-      | Lt -> if val1 < val2 then true else false
-      | Le -> if val1 <= val2 then true else false
-      | Gt -> if val1 > val1 then true else false
-      | Ge -> if val1 >= val2 then true else false
-    in match condition with (val1, comp_type, val2) -> compare val1 comp_type val2;;
 
 (***********************************************************************)
 
@@ -52,6 +42,7 @@ let usage () =
 
 let main () =
   match Sys.argv with
+  | [|_;"--simpl";file|] -> print_polish (simplify  (read_polish file))
   | [|_;"--reprint";file|] -> print_polish (read_polish file)
   | [|_;"--eval";file|] -> eval_polish (test)
   | _ -> usage ()
