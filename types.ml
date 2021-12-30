@@ -59,4 +59,3 @@ let eval_comp condition =
       | Ge -> if val1 >= val2 then true else false
     in match condition with (val1, comp_type, val2) -> compare val1 comp_type val2;;
 
-
