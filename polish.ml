@@ -33,7 +33,7 @@ printf "\n";; *)
 
 let print_polish (p:program) : unit = reprint_polish p 0;;
 
-let eval_polish (p:program) : unit = browse_program p []
+let eval_polish (p:program) : unit = browse_program p [];;
  (* failwith "TODO" *)
 
 let usage () =
@@ -44,7 +44,7 @@ let main () =
   match Sys.argv with
   | [|_;"--simpl";file|] -> print_polish (simplify  (read_polish file))
   | [|_;"--reprint";file|] -> print_polish (read_polish file)
-  | [|_;"--eval";file|] -> eval_polish (test)
+  | [|_;"--eval";file|] -> eval_polish (read_polish file)
   | _ -> usage ()
 
 (* lancement de ce main *)

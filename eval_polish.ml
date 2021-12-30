@@ -1,5 +1,5 @@
-open Printf
-open Types
+open Printf;;
+open Types;;
 
 (******************************eval_polish******************************)
 
@@ -35,14 +35,23 @@ let eval_set (name:name) (expr:expr) list_var : (name * int) list =
     (match expr with
       | Num(i) -> (name, i)::list_var
       | Var(n) -> (name, (List.assoc n list_var))::list_var
-      | Op(o, e1, e2) -> (name, (compute o e1 e2 list_var))::list_var)
+      | Op(o, e1, e2) -> (name, (compute o e1 e2 list_var))::list_var);;
 
-let eval_instr (instr:instr) list_var : (name * int) list =
+let block_to_numeric_value (condition:cond) list_var : cond =
+  match condition with 
+    (val1, comp_type, val2) -> (Num(eval_type val1 list_var), comp_type, Num(eval_type val2 list_var));;
+
+let rec browse_block (block:block) list_var : (name * int) list =
+  match block with
+    | [] -> list_var
+    | instr::program' -> browse_block program' (eval_instr (snd instr) list_var)
+
+and eval_instr (instr:instr) list_var : (name * int) list =
   match instr with 
     | Set(n,e) -> eval_set n e list_var
     | Read(n) -> eval_read n list_var 
     | Print(e) -> eval_print e list_var ; list_var
-    | If(c, b, b2) -> failwith("eval If to do") 
+    | If(c, b1, b2) -> if eval_comp (block_to_numeric_value c list_var) then browse_block b1 list_var else browse_block b2 list_var    
     | While(c, d) -> failwith("eval while to do")
 
 let rec browse_program (program:program) list_var : unit =
