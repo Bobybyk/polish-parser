@@ -41,8 +41,8 @@ let block_to_numeric_value (condition:cond) list_var : cond =
   match condition with 
     (val1, comp_type, val2) -> (Num(eval_type val1 list_var), comp_type, Num(eval_type val2 list_var));;
 
-let rec browse_block (program:program) list_var : (name * int) list =
-  match program with
+let rec browse_block (block:block) list_var : (name * int) list =
+  match block with
     | [] -> list_var
     | instr::program' -> browse_block program' (eval_instr (snd instr) list_var)
 
