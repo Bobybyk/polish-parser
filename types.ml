@@ -51,11 +51,10 @@ let is_int str : bool=
 let eval_comp condition =
   let compare val1 comp_type val2 =
     match comp_type with
-      | Eq -> if val1 = val2 then true else false
-      | Ne -> if val1 = val2 then false else true
-      | Lt -> if val1 < val2 then true else false
-      | Le -> if val1 <= val2 then true else false
-      | Gt -> if val1 > val1 then true else false
-      | Ge -> if val1 >= val2 then true else false
+      | Eq -> val1 = val2
+      | Ne -> val1 = val2
+      | Lt -> val1 < val2
+      | Le -> val1 <= val2
+      | Gt -> val1 > val1
+      | Ge -> val1 >= val2
     in match condition with (val1, comp_type, val2) -> compare val1 comp_type val2;;
-
