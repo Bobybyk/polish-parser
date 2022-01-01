@@ -24,7 +24,7 @@ and eval_instr (instr:instr) list_var : (name * int) list =
   match instr with 
     | Set(n,e) -> add_env n list_var
     | Read(n) -> add_env n list_var
-    | Print(e) -> list_var
+    | Print(e) -> eval_type e list_var
     | If(c, b1, b2) -> (check_var_cond c (browse_block b1 (browse_block b2 list_var)))
     | While(c, d) -> (check_var_cond c (browse_block d list_var))
 
