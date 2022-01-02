@@ -4,6 +4,7 @@ open Reprint;;
 open Read_polish;;
 open Eval_polish;;
 open Simpl_option;;
+open Eval_vars;;
   
 (** Projet Polish -- Analyse statique d'un mini-langage impératif *)
 
@@ -34,7 +35,8 @@ printf "\n";; *)
 let print_polish (p:program) : unit = reprint_polish p 0;;
 
 let eval_polish (p:program) : unit = browse_program p [];;
- (* failwith "TODO" *)
+
+let eval_vars (p:program) : unit = browse_program_vars p [];;
 
 let usage () =
   print_string "Polish : analyse statique d'un mini-langage\n";
@@ -45,6 +47,7 @@ let main () =
   | [|_;"--simpl";file|] -> print_polish (simplify  (read_polish file))
   | [|_;"--reprint";file|] -> print_polish (read_polish file)
   | [|_;"--eval";file|] -> eval_polish (read_polish file)
+  | [|_;"--vars";file|] -> eval_vars (read_polish file)
   | _ -> usage ()
 
 (* lancement de ce main *)
