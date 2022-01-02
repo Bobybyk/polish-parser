@@ -3,7 +3,7 @@ open Types;;
 
 let add_env name list_var : (name * int) list =
   if List.mem_assoc name list_var 
-    then (name, 1)::List.remove_assoc name list_var
+    then list_var
   else (name, 1)::list_var;; 
 
 let rec eval_type (e:expr) list_var : (name * int) list =
