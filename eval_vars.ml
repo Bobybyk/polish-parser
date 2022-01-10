@@ -12,9 +12,6 @@ let rec is_var (e:expr) list_var list_var_unint : (((name * int) list) * ((name 
     | Var(n) -> if List.mem_assoc n list_var then (list_var , list_var_unint) else (list_var , add_env n list_var_unint)
     | Op(o, e1, e2) -> let p = is_var e1 list_var list_var_unint in is_var e2 (fst p) (snd p)
 
-(* let check_var_cond (condition:cond) list_var list_var_unint =
-  match condition with (val1, comp_type, val2) -> eval_type val1 (eval_type val2 list_var list_var_unint) list_var_unint *)
-
 let rec eval_instr_under_block (instr:instr) list_var list_var_unint : (((name * int) list) * ((name * int) list)) =
   match instr with 
     | Set(n,e) -> (list_var , (add_env n list_var_unint))
