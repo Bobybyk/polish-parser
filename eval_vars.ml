@@ -15,23 +15,23 @@ let add_env name list_var : (name * int) list =
 (* let check_var_cond (condition:cond) list_var list_var_unint =
   match condition with (val1, comp_type, val2) -> eval_type val1 (eval_type val2 list_var list_var_unint) list_var_unint *)
  
-let rec eval_instr_under_block (instr:instr) list_var : ((name * int) list) =
+let rec eval_instr_under_block (instr:instr) list_var_unint : ((name * int) list) =
   match instr with 
-    | Set(n,e) -> add_env n list_var
-    | Read(n) -> add_env n list_var
-    | Print(e) -> list_var
-    | If(c, b1, b2) -> browse_block b1 (browse_block b2 list_var)
-    | While(c, d) -> (browse_block d list_var)
+    | Set(n,e) -> add_env n list_var_unint
+    | Read(n) -> add_env n list_var_unint
+    | Print(e) -> list_var_unint
+    | If(c, b1, b2) -> browse_block b1 (browse_block b2 list_var_unint)
+    | While(c, d) -> (browse_block d list_var_unint)
 
-and browse_block (block:block) list_var : ((name * int) list) =
+and browse_block (block:block) list_var_unint : ((name * int) list) =
   match block with
-    | [] -> list_var
-    | instr::program' -> browse_block program' (eval_instr_under_block (snd instr) list_var)
+    | [] -> list_var_unint
+    | instr::program' -> browse_block program' (eval_instr_under_block (snd instr) list_var_unint)
 
 let eval_instr (instr:instr) list_var list_var_unint : (((name * int) list) * ((name * int) list)) =
   match instr with 
-    | Set(n,e) -> ((add_env n list_var) , (add_env n list_var_unint))
-    | Read(n) -> ((add_env n list_var) , (add_env n list_var_unint))
+    | Set(n,e) -> ((add_env n list_var) , list_var_unint)
+    | Read(n) -> ((add_env n list_var) , list_var_unint)
     | Print(e) -> (list_var , list_var_unint) 
     | If(c, b1, b2) -> ((browse_block b2 (browse_block b1 list_var)), list_var_unint)
     | While(c, d) -> ((browse_block d list_var), list_var_unint)
@@ -43,5 +43,5 @@ let rec print_list_assoc list_var : unit =
 
 let rec browse_program_vars (program:program) list_var list_var_unint : unit =
   match program with
-    | [] -> print_list_assoc list_var ; printf "\n" ; print_list_assoc list_var_unint
+    | [] -> print_list_assoc list_var ; printf "\n" ; print_list_assoc list_var_unint ; printf "\n"
     | instr::program' -> let p = eval_instr (snd instr) list_var list_var_unint in browse_program_vars program' (fst p) (snd p);;
