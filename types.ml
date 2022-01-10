@@ -55,6 +55,6 @@ let eval_comp condition =
       | Ne -> val1 = val2
       | Lt -> val1 < val2
       | Le -> val1 <= val2
-      | Gt -> val1 > val1
+      | Gt -> val1 > val2
       | Ge -> val1 >= val2
     in match condition with (val1, comp_type, val2) -> compare val1 comp_type val2;;

@@ -37,7 +37,7 @@ let rec reprint_polish (program:program) (ind_nbr:int) : unit=
                 | Set(n,e) -> (printf "%s := " n ) ; (print_expr e)
                 | Read(n) -> printf "READ %s" n 
                 | Print(e) -> printf "PRINT " ; print_expr e 
-                | If(c,b,b2) -> printf "IF " ; print_cond c ; print_block b (ind_nbr+1);  if not(is_empty b2) then (printf "\nELSE " ; print_block b2 (ind_nbr+1))
+                | If(c,b,b2) -> printf "IF " ; print_cond c ; print_block b (ind_nbr+1);  if not(is_empty b2) then (printf "\n" ; print_indentation ind_nbr ; printf "ELSE " ; print_block b2 (ind_nbr+1))
                 | While(c,b) -> printf "WHILE " ; print_cond c ; print_block b (ind_nbr+1) ) in
         match program with
         | e::[] -> print_instr (snd e) ind_nbr

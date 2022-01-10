@@ -40,7 +40,12 @@ let eval_vars (p:program) : unit = browse_program_vars p [];;
 
 let usage () =
   print_string "Polish : analyse statique d'un mini-langage\n";
-  print_string "usage: à documenter (TODO)\n"
+  print_string "Le programme prend les arguments suivants: <option> <fichier>\n";
+  print_string "Options disponibles:\n";
+  print_string "\t--reprint: Affiche le code contenu dans le fichier fourni en argument sans les commentaires\n";
+  print_string "\t--eval: Exécute le programme\n";
+  print_string "\t--vars: Affiche la liste des variables du programme et si celles-ci peuvent être accédées avant leur initialisation\n";
+  print_string "\t--simpl: Effectue des simplifications évidentes sur le code\n"
 
 let main () =
   match Sys.argv with
