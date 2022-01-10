@@ -36,7 +36,7 @@ let print_polish (p:program) : unit = reprint_polish p 0;;
 
 let eval_polish (p:program) : unit = browse_program p [];;
 
-let eval_vars (p:program) : unit = browse_program_vars p [];;
+let eval_vars (p:program) : unit = browse_program_vars p [] [];;
 
 let usage () =
   print_string "Polish : analyse statique d'un mini-langage\n";
