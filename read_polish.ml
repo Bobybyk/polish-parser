@@ -132,9 +132,18 @@ collect_instr (lines:(position * string) list ) : ( (position * instr) * ((posit
 and
 
 collect_else (lines: (position * string) list) (ind:int) : (block * ((position * string) list)) =
+  let rec build_collect_else_block (l:(position * string) list) (ind:int) : (block * ((position * string) list))=
+    (match l with 
+      | [] -> ([],l)
+      | e::rest -> if get_indentation e = ind 
+                    then 
+                      let block = (build_collect_else_block rest ind ) in ((( fst (collect_instr l))::(fst block)),(snd block))
+                    else
+                      ([],l)
+    ) in
   match lines with
   | [] -> ([],[])
-  | e::l -> if String.equal (snd e) "ELSE" then (collect_block l ind) else ([],lines);;
+  | e::l -> let block = (build_collect_else_block l ind) in ((fst block), (snd block));;
 
 let read_polish (filename:string) : program = 
   let program = read_file filename in 
