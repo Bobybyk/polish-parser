@@ -14,12 +14,12 @@ let rec is_var (e:expr) list_var list_var_unint : (((name * int) list) * ((name 
 
 (* let check_var_cond (condition:cond) list_var list_var_unint =
   match condition with (val1, comp_type, val2) -> eval_type val1 (eval_type val2 list_var list_var_unint) list_var_unint *)
- 
+
 let rec eval_instr_under_block (instr:instr) list_var list_var_unint : (((name * int) list) * ((name * int) list)) =
   match instr with 
-    | Set(n,e) -> (add_env n list_var , (add_env n list_var_unint))
-    | Read(n) -> (add_env n list_var , (add_env n list_var_unint))
-    | Print(e) -> let p = is_var e list_var list_var_unint in is_var e list_var list_var
+    | Set(n,e) -> (list_var , (add_env n list_var_unint))
+    | Read(n) -> (list_var , (add_env n list_var_unint))
+    | Print(e) -> is_var e list_var list_var_unint
     | If(c, b1, b2) -> let p = browse_block b1 list_var list_var_unint in browse_block b2 (fst p) (snd p)
     | While(c, d) -> (browse_block d list_var list_var_unint)
 
@@ -43,5 +43,5 @@ let rec print_list_assoc list_var : unit =
 
 let rec browse_program_vars (program:program) list_var list_var_unint : unit =
   match program with
-    | [] -> print_list_assoc list_var ; printf "\n" ; print_list_assoc list_var_unint ; printf "\n"
+    | [] -> print_list_assoc list_var ; print_list_assoc list_var_unint ; printf "\n" ; print_list_assoc list_var_unint ; printf "\n"
     | instr::program' -> let p = eval_instr (snd instr) list_var list_var_unint in browse_program_vars program' (fst p) (snd p);;
